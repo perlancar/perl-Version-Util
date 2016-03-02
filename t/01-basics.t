@@ -4,14 +4,16 @@ use 5.010;
 use strict;
 use warnings;
 
+use Test::Exception;
+use Test::More 0.98;
 use Version::Util qw(
                         cmp_version
                         version_eq version_ne
                         version_lt version_le version_gt version_ge
                         version_between
                         version_in
+                        add_version subtract_version
                 );
-use Test::More 0.98;
 
 subtest cmp_version => sub {
     is(cmp_version("1.1.0", "1.1.0"),  0);
@@ -67,6 +69,27 @@ subtest version_in => sub {
     ok( version_in("1.1.0" , "1.1.0", "1.1.1"));
     ok( version_in("1.1.1" , "1.1.0", "1.1.1"));
     ok(!version_in("1.2.0" , "1.1.0", "1.1.1"));
+};
+
+subtest add_version => sub {
+    is(add_version("0.1", "0.1"), "0.2");
+    is(add_version("0.01", "0.001"), "0.011");
+    is(add_version("0.01", "0.1"), "0.11");
+    is(add_version("0.9", "0.1"), "1.0");
+    is(add_version("0.99", "0.1"), "1.09");
+    is(add_version("1.1.0", "0.0.1"), "1.1.1");
+
+    is(add_version("0.89", "0.01"), "0.90");
+    is(add_version("0.89", "0.1"), "0.99");
+    is(add_version("0", "0.1.2"), "0.1.2");
+    is(add_version("9.9", "0.1.2"), "10.0.2");
+};
+
+subtest subtract_version => sub {
+    is(subtract_version("0.1", "0.1"), "0.0");
+    is(subtract_version("1.0", "0.1"), "0.9");
+    is(subtract_version("1.0.1", "0.1"), "0.9.1");
+    dies_ok { subtract_version("0.1", "0.2") };
 };
 
 DONE_TESTING:
