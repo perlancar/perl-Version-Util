@@ -71,7 +71,7 @@ sub _max2 {
 sub _add_or_subtract_version {
     my ($which, $v, $inc) = @_;
 
-    state $re = qr/\Av?(\d{1,3})(?:\.(\d{1,3}))?(?:\.(\d{1,3}))?\z/;
+    state $re = qr/\Av?(\d{1,15})(?:\.(\d{1,3}))?(?:\.(\d{1,3}))?\z/;
 
     $v =~ $re or die "Invalid version '$v', must match $re";
     my ($v_maj, $v_min, $v_pl) = ($1, $2, $3);
