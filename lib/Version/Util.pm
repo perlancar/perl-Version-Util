@@ -1,12 +1,14 @@
 package Version::Util;
 
-# DATE
-# VERSION
-
 use 5.010001;
 use strict;
 use version 0.77;
 use warnings;
+
+# AUTHORITY
+# DATE
+# DIST
+# VERSION
 
 use Exporter qw(import);
 our @EXPORT_OK = qw(
@@ -21,47 +23,53 @@ our @EXPORT_OK = qw(
                );
 
 sub cmp_version {
-    version->parse($_[0]) <=> version->parse($_[1]);
+    my $res; eval { $res = version->parse($_[0]) <=> version->parse($_[1]) }; die "Can't cmp_version $_[0] & $_[1]: $@" if $@; $res;
 }
 
 sub version_eq {
-    version->parse($_[0]) == version->parse($_[1]);
+    my $res; eval { $res = version->parse($_[0]) == version->parse($_[1]) }; die "Can't version_eq $_[0] & $_[1]: $@" if $@; $res;
 }
 
 sub version_ne {
-    version->parse($_[0]) != version->parse($_[1]);
+    my $res; eval { $res = version->parse($_[0]) != version->parse($_[1]) }; die "Can't version_ne $_[0] & $_[1]: $@" if $@; $res;
 }
 
 sub version_lt {
-    version->parse($_[0]) <  version->parse($_[1]);
+    my $res; eval { $res = version->parse($_[0]) <  version->parse($_[1]) }; die "Can't version_lt $_[0] & $_[1]: $@" if $@; $res;
 }
 
 sub version_le {
-    version->parse($_[0]) <= version->parse($_[1]);
+    my $res; eval { $res = version->parse($_[0]) <= version->parse($_[1]) }; die "Can't version_le $_[0] & $_[1]: $@" if $@; $res;
 }
 
 sub version_gt {
-    version->parse($_[0]) >  version->parse($_[1]);
+    my $res; eval { $res = version->parse($_[0]) >  version->parse($_[1]) }; die "Can't version_gt $_[0] & $_[1]: $@" if $@; $res;
 }
 
 sub version_ge {
-    version->parse($_[0]) >= version->parse($_[1]);
+    my $res; eval { $res = version->parse($_[0]) >= version->parse($_[1]) }; die "Can't version_ge $_[0] & $_[1]: $@" if $@; $res;
 }
 
 sub version_between {
-    my $v = version->parse(shift);
+    my $v0 = shift;
+    my $v; eval { $v = version->parse($v0) };
+    die "Can't version_between for $v0: $@" if $@;
     while (@_) {
         my $v1 = shift;
         my $v2 = shift;
-        return 1 if $v >= version->parse($v1) && $v <= version->parse($v2);
+        eval { return 1 if $v >= version->parse($v1) && $v <= version->parse($v2) };
+        die "Can't version_between $v1 <= $v0 <= $v2: $@" if $@;
     }
     0;
 }
 
 sub version_in {
-    my $v = version->parse(shift);
+    my $v0 = shift;
+    my $v; eval { $v = version->parse($v0) };
+    die "Can't version_in for $v0: $@" if $@;
     for (@_) {
-        return 1 if $v == version->parse($_);
+        eval { return 1 if $v == version->parse($_) };
+        die "Can't version_in: $v0 == $_: $@" if $@;
     }
     0;
 }
@@ -71,12 +79,20 @@ sub _max2 {
 }
 
 sub min_version {
-    my @v = sort { version->parse($a) <=> version->parse($b) } @_;
+    my @v = sort {
+        my $res; eval { $res = version->parse($a) <=> version->parse($b) };
+        die "Can't min_version: Can't sort $a vs $b: $@" if $@;
+        $res;
+    } @_;
     @v ? $v[0] : undef;
 }
 
 sub max_version {
-    my @v = sort { version->parse($a) <=> version->parse($b) } @_;
+    my @v = sort {
+        my $res; eval { $res = version->parse($a) <=> version->parse($b) };
+        die "Can't max_version: Can't sort $a vs $b: $@" if $@;
+        $res;
+    } @_;
     @v ? $v[-1] : undef;
 }
 
